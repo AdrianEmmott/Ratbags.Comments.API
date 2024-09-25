@@ -22,21 +22,20 @@ namespace Ratbags.Comments.API.Controllers
         }
 
 
-        [HttpPut("create")]
+        [HttpPost("create")]
         [ProducesResponseType((int)HttpStatusCode.BadGateway)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
         [SwaggerOperation(Summary = "Adds a comment to an article", Description = "The article id must exist!")]
         public async Task<IActionResult> Create(CreateCommentDTO commentDTO)
         {
             try
             {
-                _logger.LogInformation($"add comment for article {commentDTO.ArticleId}");
-                var result = await _service.CreateCommentAsync(commentDTO);
+                var commentId = await _service.CreateCommentAsync(commentDTO);
 
-                if (result != Guid.Empty)
+                if (commentId != Guid.Empty)
                 {
-                    return NoContent();
+                    return Created(nameof(GetCommentById), commentId);
                 }
 
                 return NotFound();

@@ -40,6 +40,11 @@ public class CommentsService : ICommentsService
         return commentId;
     }
 
+    public async Task DeleteCommentAsync(Guid id)
+    {
+        await _repository.DeleteCommentAsync(id);
+    }
+
     public async Task<CommentDTO?> GetCommentByIdAsync(Guid id)
     {
         var comment = await _repository.GetCommentByIdAsync(id);
@@ -97,10 +102,5 @@ public class CommentsService : ICommentsService
         existingComment.CommentContent = commentDTO.Content;
 
         await _repository.UpdateCommentAsync(id, existingComment);
-    }
-
-    public async Task DeleteCommentAsync(Guid id)
-    {
-        await _repository.DeleteCommentAsync(id);
     }
 }
