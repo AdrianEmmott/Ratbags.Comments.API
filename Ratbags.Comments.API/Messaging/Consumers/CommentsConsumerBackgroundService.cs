@@ -7,7 +7,7 @@ namespace Ratbags.Comments.Messaging.Consumers;
 public class CommentsConsumer : IConsumer<CommentsForArticleRequest>
 {
     private readonly ILogger<CommentsConsumer> _logger;
-    private readonly ICommentsService _commentsService;
+    private readonly IService _commentsService;
 
     private readonly string _exchangeName = "articles.comments.exchange";
     private readonly string _requestQueueName = "comments.request";
@@ -16,7 +16,7 @@ public class CommentsConsumer : IConsumer<CommentsForArticleRequest>
     private readonly string _responseRoutingKey = "response";
 
     public CommentsConsumer(
-        ICommentsService commentsService,
+        IService commentsService,
         ILogger<CommentsConsumer> logger)
     {
         _commentsService = commentsService;
@@ -29,7 +29,7 @@ public class CommentsConsumer : IConsumer<CommentsForArticleRequest>
         {
             _logger.LogInformation("listening...");
 
-            var comments = await _commentsService.GetCommentsByArticleIdAsync(context.Message.ArticleId);
+            var comments = await _commentsService.GetByArticleIdAsync(context.Message.ArticleId);
 
             _logger.LogInformation($"got {comments.Count()} comments for article {context.Message.ArticleId}");
 

@@ -1,6 +1,7 @@
 ﻿using Comments.API.Interfaces;
-using MassTransit;
+using MassTransit.Futures.Contracts;
 using Microsoft.AspNetCore.Mvc;
+using Ratbags.Comments.API.Models;
 using Ratbags.Shared.DTOs.Events.DTOs.Articles.Comments;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -11,10 +12,10 @@ namespace Ratbags.Comments.API.Controllers
     [Route("api/comments")]
     public class CommentsController : ControllerBase
     {
-        private readonly ICommentsService _service;
+        private readonly IService _service;
         private readonly ILogger<CommentsController> _logger;
 
-        public CommentsController(ICommentsService service
+        public CommentsController(IService service
             , ILogger<CommentsController> logger)
         {
             _service = service;
@@ -22,83 +23,93 @@ namespace Ratbags.Comments.API.Controllers
         }
 
 
-        [HttpPost("create")]
-        [ProducesResponseType((int)HttpStatusCode.BadGateway)]
+        [HttpDelete("{id}")]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType((int)HttpStatusCode.Created)]
-        [SwaggerOperation(Summary = "Adds a comment to an article", Description = "The article id must exist!")]
-        public async Task<IActionResult> Create(CreateCommentDTO commentDTO)
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [SwaggerOperation(Summary = "Deletes a comment by id", Description = "Deletes a comment by id")]
+        public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                var commentId = await _service.CreateCommentAsync(commentDTO);
+                var result = await _service.DeleteAsync(id);
 
-                if (commentId != Guid.Empty)
-                {
-                    return Created(nameof(GetCommentById), commentId);
-                }
-
-                return NotFound();
+                return result ? NoContent() : NotFound();
             }
             catch (Exception e)
             {
-                _logger.LogInformation($"error - add comments to article {commentDTO.ArticleId}: {e.Message}");
-                return BadRequest(e.Message);
-                throw;
-                throw;
+                _logger.LogError($"Error deleting comment {id}: {e.Message}");
+                return StatusCode(500, "An error occurred while deleting the comment");
             }
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]        
-        [ProducesResponseType(typeof(CommentDTO), (int)HttpStatusCode.OK)]
-        [SwaggerOperation(Summary = "Gets a comment by id", Description = "Retrieves a specific comment by its unique id")]
-        public async Task<IActionResult> GetCommentById(Guid id)
-        {
-            try
-            {
-                var comment = await _service.GetCommentByIdAsync(id);
-
-                if (comment != null)
-                {
-                    return Ok(comment);
-                }
-
-                return NotFound();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-                throw;
-            }  
-        }
-
-
-        [HttpGet("article/{id}")]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(CommentDTO), (int)HttpStatusCode.OK)]
-        [SwaggerOperation(Summary = "Gets all comments by article id", Description = "Retrieves all comments by article id")]
-        public async Task<IActionResult> GetCommentsByArticleId(Guid id)
+        [SwaggerOperation(Summary = "Gets a comment by id", Description = "Returns a specific comment by id")]
+        public async Task<IActionResult> Get(Guid id)
+        {
+            var comment = await _service.GetByIdAsync(id);
+
+            return comment == null ? NotFound() : Ok(comment);
+        }
+
+        [HttpGet("article/{id}")]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(CommentDTO), (int)HttpStatusCode.OK)]
+        [SwaggerOperation(Summary = "Gets all comments by article id", Description = "Returns all comments for an article or an empty list if no data")]
+        public async Task<IActionResult> GetByArticleId(Guid id)
+        {
+            var comments = await _service.GetByArticleIdAsync(id);
+
+            return comments == null ? NotFound() : Ok(comments);
+        }
+
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        [SwaggerOperation(Summary = "Adds a comment to an article", Description = "The article id must exist")]
+        public async Task<IActionResult> Post(CreateCommentDTO commentDTO)
         {
             try
             {
-                _logger.LogInformation($"get comments for article {id}");
-                var comments = await _service.GetCommentsByArticleIdAsync(id);
+                var commentId = await _service.CreateAsync(commentDTO);
 
-                if (comments != null)
+                if (commentId != Guid.Empty)
                 {
-                    return Ok(comments);
+                    return CreatedAtAction(nameof(GetByArticleId), new { id = commentId }, commentId);
                 }
 
-                return NotFound();
+                return BadRequest("Failed to create comment");
             }
             catch (Exception e)
             {
-                _logger.LogInformation($"error - get comments for article {id}: {e.Message}");
-                return BadRequest(e.Message);
-                throw;
+                _logger.LogError($"Error creating comment for article {commentDTO.ArticleId}: {e.Message}");
+                return StatusCode(500, $"An error occurred while creating the comment");
+            }
+        }
+
+        [HttpPut]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [SwaggerOperation(Summary = "Updates a comment ", Description = "Updates a comment")]
+        public async Task<IActionResult> Put([FromBody] CommentDTO commentDTO)
+        {
+            try
+            {
+                var result = await _service.UpdateAsync(commentDTO);
+
+                if (!result)
+                {
+                    return NotFound();
+                }
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error updating comment {commentDTO.Id} for article {commentDTO.ArticleId}: {e.Message}");
+                return StatusCode(500, "An error occurred while updating the comment");
             }
         }
     }

@@ -10,8 +10,8 @@ namespace Ratbags.Cmments.API.IOC
         public static IServiceCollection AddCustomServices(this IServiceCollection services)
         {
             // Register services
-            services.AddScoped<ICommentsService, CommentsService>();
-            services.AddScoped<ICommentsRepository, CommentsRepository>();
+            services.AddScoped<IService, Service>();
+            services.AddScoped<IRepository, Repository>();
 
             return services;
         }
