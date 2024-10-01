@@ -13,16 +13,16 @@ namespace Ratbags.Comments.API.Tests
     public class CommentsControllerTests
     {
         private Mock<IService> _mockService;
-        private Mock<ILogger<CommentsController>> _mockLogger;
+        private Mock<ILogger<Controllers.CommentsController>> _mockLogger;
 
-        private CommentsController _controller;
+        private Controllers.CommentsController _controller;
 
         [SetUp]
         public void SetUp()
         {
             _mockService = new Mock<IService>();
-            _mockLogger = new Mock<ILogger<CommentsController>>();
-            _controller = new CommentsController(_mockService.Object, _mockLogger.Object);
+            _mockLogger = new Mock<ILogger<Controllers.CommentsController>>();
+            _controller = new Controllers.CommentsController(_mockService.Object, _mockLogger.Object);
         }
 
         // DELETE
@@ -83,7 +83,7 @@ namespace Ratbags.Comments.API.Tests
 
         // GET/{ID}
         [Test]
-        public async Task GetCommentById_Ok()
+        public async Task GetById_Ok()
         {
             // arrange
             var dto = new CommentDTO 
@@ -104,7 +104,7 @@ namespace Ratbags.Comments.API.Tests
         }
 
         [Test]
-        public async Task GetCommentById_NotFound()
+        public async Task GetById_NotFound()
         {
             // arrange
             var id = Guid.NewGuid();
@@ -122,7 +122,7 @@ namespace Ratbags.Comments.API.Tests
 
         // GET/ARTICLE/{ID}
         [Test]
-        public async Task GetCommentsByArticleId_Ok()
+        public async Task GetByArticleId_Ok()
         {
             // arrange
             var articleId = Guid.NewGuid();
@@ -157,7 +157,7 @@ namespace Ratbags.Comments.API.Tests
         }
 
         [Test]
-        public async Task GetCommentsByArticleId_NotFound()
+        public async Task GetByArticleId_NotFound()
         {
             // arrange
             var articleId = Guid.NewGuid();
@@ -184,10 +184,10 @@ namespace Ratbags.Comments.API.Tests
                 Content = "New Comment" 
             };
 
-            var newCommentId = Guid.NewGuid();
+            var newId = Guid.NewGuid();
 
             _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateCommentDTO>()))
-                .ReturnsAsync(newCommentId);
+                .ReturnsAsync(newId);
 
             // act
             var result = await _controller.Post(dto);
@@ -202,10 +202,10 @@ namespace Ratbags.Comments.API.Tests
 
             // assert route values correct id
             Assert.That(createdResult.RouteValues.ContainsKey("id"));
-            Assert.That(createdResult.RouteValues["id"], Is.EqualTo(newCommentId));
+            Assert.That(createdResult.RouteValues["id"], Is.EqualTo(newId));
 
-            // assert returned value is the comment id
-            Assert.That(createdResult.Value, Is.EqualTo(newCommentId));
+            // assert returned value is the new id
+            Assert.That(createdResult.Value, Is.EqualTo(newId));
         }
 
         [Test]
