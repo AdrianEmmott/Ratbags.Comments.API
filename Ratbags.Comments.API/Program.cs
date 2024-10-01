@@ -17,7 +17,7 @@ if (builder.Environment.IsDevelopment())
 builder.Services.Configure<AppSettingsBase>(builder.Configuration);
 var appSettings = builder.Configuration.Get<AppSettingsBase>() ?? throw new Exception("Appsettings missing");
 
-// Configure Kestrel to use HTTPS on port 5001
+// config kestrel for https on 5001
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
     serverOptions.ListenAnyIP(5079); // HTTP
@@ -29,7 +29,7 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     });
 });
 
-// Configure CORS
+// config cors
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
@@ -41,7 +41,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-// Add services to the container.
+// add services to container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -57,10 +57,10 @@ builder.Services.AddCustomServices();
 // masstransit
 builder.Services.AddMassTransit(x =>
 {
-    // Register your consumer
+    // register consumers
     x.AddConsumer<CommentsConsumer>();
 
-    // Configure RabbitMQ
+    // rabbitmq config
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host($"rabbitmq://{appSettings.Messaging.Hostname}/{appSettings.Messaging.VirtualHost}", h =>
@@ -71,17 +71,17 @@ builder.Services.AddMassTransit(x =>
 
         cfg.Message<CommentsForArticleResponse>(c =>
         {
-            c.SetEntityName("articles.comments.exchange"); // Sets the exchange name for this message type
+            c.SetEntityName("articles.comments.exchange"); // sets exchange name for this message type
         });
 
         cfg.ReceiveEndpoint("articles.comments.exchange", e =>
         {
             e.ConfigureConsumer<CommentsConsumer>(context);
 
-            // Bind the queue to the specific exchange
+            // bind queue to the specific exchange
             e.Bind("articles.comments.exchange", x =>
             {
-                x.RoutingKey = "request"; // Make sure this matches what the Articles API uses
+                x.RoutingKey = "request"; // make sure this matches what articles api uses
             });
         });
     });
@@ -89,15 +89,25 @@ builder.Services.AddMassTransit(x =>
 
 var app = builder.Build();
 
-// Enable CORS
 app.UseCors("AllowSpecificOrigin");
 
-// Configure the HTTP request pipeline.
+// configu the http request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+// errors
+if (!app.Environment.IsDevelopment())
+{
+    // production errors
+    app.UseExceptionHandler("/error");  // needs endpoint
+}
+else
+{
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
