@@ -33,11 +33,15 @@ public class CommentsConsumer : IConsumer<CommentsForArticleRequest>
 
             _logger.LogInformation($"got {comments.Count()} comments for article {context.Message.ArticleId}");
 
-            // Respond to the request
+            // respond to the request
             await context.RespondAsync(new CommentsForArticleResponse
             {
                 ArticleId = context.Message.ArticleId,
                 Comments = comments.ToList()
+            }, ctx =>
+            {
+                // spare code! pointless but keep for now in case you move away from request/response
+                ctx.SetRoutingKey("comments.response");
             });
         }
         catch (Exception e)

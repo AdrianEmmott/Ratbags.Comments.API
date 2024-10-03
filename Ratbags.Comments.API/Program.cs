@@ -1,7 +1,7 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Ratbags.Cmments.API.IOC;
 using Ratbags.Comments.API.Models;
+using Ratbags.Comments.API.ServiceExtensions;
 using Ratbags.Comments.Messaging.Consumers;
 using Ratbags.Shared.DTOs.Events.AppSettingsBase;
 using Ratbags.Shared.DTOs.Events.Events.CommentsRequest;
@@ -52,40 +52,9 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddCustomServices();
+builder.Services.AddDIServiceExtension();
 
-// masstransit
-builder.Services.AddMassTransit(x =>
-{
-    // register consumers
-    x.AddConsumer<CommentsConsumer>();
-
-    // rabbitmq config
-    x.UsingRabbitMq((context, cfg) =>
-    {
-        cfg.Host($"rabbitmq://{appSettings.Messaging.Hostname}/{appSettings.Messaging.VirtualHost}", h =>
-        {
-            h.Username(appSettings.Messaging.Username);
-            h.Password(appSettings.Messaging.Password);
-        });
-
-        cfg.Message<CommentsForArticleResponse>(c =>
-        {
-            c.SetEntityName("articles.comments.exchange"); // sets exchange name for this message type
-        });
-
-        cfg.ReceiveEndpoint("articles.comments.exchange", e =>
-        {
-            e.ConfigureConsumer<CommentsConsumer>(context);
-
-            // bind queue to the specific exchange
-            e.Bind("articles.comments.exchange", x =>
-            {
-                x.RoutingKey = "request"; // make sure this matches what articles api uses
-            });
-        });
-    });
-});
+builder.Services.AddMassTransitWithRabbitMqServiceExtension(appSettings);
 
 var app = builder.Build();
 

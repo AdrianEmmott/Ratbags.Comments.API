@@ -38,7 +38,7 @@ namespace Ratbags.Comments.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError($"Error deleting comment {id}: {e.Message}");
-                return StatusCode(500, "An error occurred while deleting the comment");
+                return StatusCode((int)HttpStatusCode.InternalServerError, "An error occurred while deleting the comment");
             }
         }
 
@@ -84,7 +84,7 @@ namespace Ratbags.Comments.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError($"Error creating comment for article {commentDTO.ArticleId}: {e.Message}");
-                return StatusCode(500, $"An error occurred while creating the comment");
+                return StatusCode((int)HttpStatusCode.InternalServerError, $"An error occurred while creating the comment");
             }
         }
 
@@ -109,7 +109,7 @@ namespace Ratbags.Comments.API.Controllers
             catch (Exception e)
             {
                 _logger.LogError($"Error updating comment {commentDTO.Id} for article {commentDTO.ArticleId}: {e.Message}");
-                return StatusCode(500, "An error occurred while updating the comment");
+                return StatusCode((int)HttpStatusCode.InternalServerError, "An error occurred while updating the comment");
             }
         }
     }

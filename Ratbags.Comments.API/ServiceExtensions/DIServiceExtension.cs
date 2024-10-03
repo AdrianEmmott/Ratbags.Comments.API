@@ -3,11 +3,11 @@ using Ratbags.Comments.API.Interfaces;
 using Ratbags.Comments.API.Repositories;
 using Ratbags.Comments.API.Services;
 
-namespace Ratbags.Cmments.API.IOC
+namespace Ratbags.Comments.API.ServiceExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static class DIServiceExtension
     {
-        public static IServiceCollection AddCustomServices(this IServiceCollection services)
+        public static IServiceCollection AddDIServiceExtension(this IServiceCollection services)
         {
             // Register services
             services.AddScoped<IService, Service>();
