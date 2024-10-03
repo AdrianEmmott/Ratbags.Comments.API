@@ -9,12 +9,6 @@ public class CommentsConsumer : IConsumer<CommentsForArticleRequest>
     private readonly ILogger<CommentsConsumer> _logger;
     private readonly IService _commentsService;
 
-    private readonly string _exchangeName = "articles.comments.exchange";
-    private readonly string _requestQueueName = "comments.request";
-    private readonly string _requestRoutingKey = "request";
-    private readonly string _responseQueueName = "comments.response";
-    private readonly string _responseRoutingKey = "response";
-
     public CommentsConsumer(
         IService commentsService,
         ILogger<CommentsConsumer> logger)

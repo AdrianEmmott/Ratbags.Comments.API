@@ -25,21 +25,18 @@ namespace Ratbags.Comments.API.ServiceExtensions
 
                     cfg.Message<CommentsForArticleResponse>(c =>
                     {
-                        c.SetEntityName("articles.comments.exchange"); // Set exchange name for this message type
+                        c.SetEntityName("articles.comments"); // Set exchange name for this message type
                     });
 
-                    cfg.ReceiveEndpoint("articles.comments.queue", q =>
+                    cfg.ReceiveEndpoint("articles.comments", q =>
                     {
                         q.ConfigureConsumer<CommentsConsumer>(context);
 
                         // Bind queue to the specific exchange
-                        q.Bind("articles.comments.exchange", e =>
+                        q.Bind("articles.comments", e =>
                         {
                             e.RoutingKey = "request"; // Match routing key with articles API
                         });
-
-                        // Disable the auto-creation of the default queue exchange
-                        q.ConfigureConsumeTopology = false;
                     });
                 });
             });
