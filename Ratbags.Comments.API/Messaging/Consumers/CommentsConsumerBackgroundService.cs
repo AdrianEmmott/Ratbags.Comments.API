@@ -1,6 +1,6 @@
 ﻿using Comments.API.Interfaces;
 using MassTransit;
-using Ratbags.Shared.DTOs.Events.Events.CommentsRequest;
+using Ratbags.Core.Events.CommentsRequest;
 
 namespace Ratbags.Comments.Messaging.Consumers;
 

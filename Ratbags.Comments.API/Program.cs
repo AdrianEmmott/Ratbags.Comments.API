@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Ratbags.Comments.API.Models;
 using Ratbags.Comments.API.ServiceExtensions;
-using Ratbags.Shared.DTOs.Events.AppSettingsBase;
+using Ratbags.Core.Settings;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,7 +40,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-// add services to container
+// add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

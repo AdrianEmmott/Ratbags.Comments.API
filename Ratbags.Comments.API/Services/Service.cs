@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ratbags.Comments.API.Interfaces;
 using Ratbags.Comments.API.Models;
-using Ratbags.Shared.DTOs.Events.DTOs.Articles.Comments;
+using Ratbags.Core.DTOs.Articles.Comments;
 
 namespace Ratbags.Comments.API.Services;
 

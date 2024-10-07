@@ -1,47 +1,45 @@
-﻿using Ratbags.Shared.DTOs.Events.AppSettingsBase;
-using MassTransit;
+﻿using MassTransit;
 using Ratbags.Comments.Messaging.Consumers;
-using Ratbags.Shared.DTOs.Events.Events.CommentsRequest;
+using Ratbags.Core.Events.CommentsRequest;
+using Ratbags.Core.Settings;
 
-namespace Ratbags.Comments.API.ServiceExtensions
+namespace Ratbags.Comments.API.ServiceExtensions;
+
+public static class MassTransitServiceExtension
 {
-    public static class MassTransitServiceExtension
+    public static IServiceCollection AddMassTransitWithRabbitMqServiceExtension(this IServiceCollection services, AppSettingsBase appSettings)
     {
-        public static IServiceCollection AddMassTransitWithRabbitMqServiceExtension(this IServiceCollection services, AppSettingsBase appSettings)
+        services.AddMassTransit(x =>
         {
-            services.AddMassTransit(x =>
+            x.AddConsumer<CommentsConsumer>();
+
+            // rabbitmq config
+            x.UsingRabbitMq((context, cfg) =>
             {
-                // Register consumers
-                x.AddConsumer<CommentsConsumer>();
-
-                // RabbitMQ configuration
-                x.UsingRabbitMq((context, cfg) =>
+                cfg.Host($"rabbitmq://{appSettings.Messaging.Hostname}/{appSettings.Messaging.VirtualHost}", h =>
                 {
-                    cfg.Host($"rabbitmq://{appSettings.Messaging.Hostname}/{appSettings.Messaging.VirtualHost}", h =>
-                    {
-                        h.Username(appSettings.Messaging.Username);
-                        h.Password(appSettings.Messaging.Password);
-                    });
+                    h.Username(appSettings.Messaging.Username);
+                    h.Password(appSettings.Messaging.Password);
+                });
 
-                    cfg.Message<CommentsForArticleResponse>(c =>
-                    {
-                        c.SetEntityName("articles.comments"); // Set exchange name for this message type
-                    });
+                cfg.Message<CommentsForArticleResponse>(c =>
+                {
+                    c.SetEntityName("articles.comments"); // exchange name for message type
+                });
 
-                    cfg.ReceiveEndpoint("articles.comments", q =>
-                    {
-                        q.ConfigureConsumer<CommentsConsumer>(context);
+                cfg.ReceiveEndpoint("articles.comments", q =>
+                {
+                    q.ConfigureConsumer<CommentsConsumer>(context);
 
-                        // Bind queue to the specific exchange
-                        q.Bind("articles.comments", e =>
-                        {
-                            e.RoutingKey = "request"; // Match routing key with articles API
-                        });
+                    // bind queue to the specific exchange
+                    q.Bind("articles.comments", e =>
+                    {
+                        e.RoutingKey = "request"; // match articles api - pretty sure this isn't needed
                     });
                 });
             });
+        });
 
-            return services;
-        }
+        return services;
     }
 }

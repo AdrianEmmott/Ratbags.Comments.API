@@ -1,9 +1,7 @@
 ﻿using Comments.API.Interfaces;
-using MassTransit.Futures.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Ratbags.Comments.API.Models;
-using Ratbags.Shared.DTOs.Events.DTOs.Articles.Comments;
+using Ratbags.Core.DTOs.Articles.Comments;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
