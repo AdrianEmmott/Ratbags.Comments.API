@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Ratbags.Comments.API.Models;
 using Ratbags.Comments.API.ServiceExtensions;
 using Ratbags.Shared.DTOs.Events.AppSettingsBase;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +34,6 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
         builder => builder
-            //.WithOrigins("https://localhost:7117")    // ocelot - vs
             .WithOrigins("https://localhost:5001")      // ocelot - docker
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -53,11 +55,31 @@ builder.Services.AddDIServiceExtension();
 
 builder.Services.AddMassTransitWithRabbitMqServiceExtension(appSettings);
 
+// TODO breakout
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidAudience = builder.Configuration["JWT:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+    };
+});
+
 var app = builder.Build();
 
 app.UseCors("AllowSpecificOrigin");
 
-// configu the http request pipeline.
+// config http request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -77,6 +99,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

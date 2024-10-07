@@ -1,5 +1,6 @@
 ﻿using Comments.API.Interfaces;
 using MassTransit.Futures.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ratbags.Comments.API.Models;
 using Ratbags.Shared.DTOs.Events.DTOs.Articles.Comments;
@@ -65,6 +66,7 @@ namespace Ratbags.Comments.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [SwaggerOperation(Summary = "Adds a comment to an article", Description = "The article id must exist")]
@@ -89,6 +91,7 @@ namespace Ratbags.Comments.API.Controllers
         }
 
         [HttpPut]
+        [Authorize]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

@@ -9,21 +9,19 @@ namespace Ratbags.Comments.API.Services;
 public class Service : IService
 {
     private readonly IRepository _repository;
-    private readonly IServiceScopeFactory _serviceProvider;
     private readonly ILogger<Service> _logger;
 
-    public Service(IRepository repository, 
-        IServiceScopeFactory serviceProvider,
+    public Service(IRepository repository,
         ILogger<Service> logger)
     {
         _repository = repository;
-        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
     public async Task<Guid> CreateAsync(CreateCommentDTO commentDTO)
     {
-        if (commentDTO.ArticleId == Guid.Empty) {
+        if (commentDTO.ArticleId == Guid.Empty)
+        {
             throw new ArgumentNullException(nameof(commentDTO.ArticleId));
         }
 
@@ -68,7 +66,6 @@ public class Service : IService
             _logger.LogError($"Error deleting comment {id}: {e.Message}");
             throw;
         }
-        
     }
 
     public async Task<CommentDTO?> GetByIdAsync(Guid id)
@@ -91,7 +88,6 @@ public class Service : IService
 
     public async Task<IEnumerable<CommentDTO>> GetByArticleIdAsync(Guid id)
     {
-
         _logger.LogInformation($"get comments for article {id}");
         var comments = await _repository.GetByArticleIdAsync(id);
 
@@ -104,8 +100,8 @@ public class Service : IService
                 Published = comment.PublishDate,
                 Content = comment.CommentContent
             })
-                .OrderBy(x => x.Published)
-                .ToList();
+            .OrderBy(x => x.Published)
+            .ToList();
         }
 
         return new List<CommentDTO>();

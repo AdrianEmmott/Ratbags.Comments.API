@@ -19,28 +19,21 @@ public class CommentsConsumer : IConsumer<CommentsForArticleRequest>
 
     public async Task Consume(ConsumeContext<CommentsForArticleRequest> context)
     {
-        try
+        _logger.LogInformation("listening...");
+
+        var comments = await _commentsService.GetByArticleIdAsync(context.Message.ArticleId);
+
+        _logger.LogInformation($"got {comments.Count()} comments for article {context.Message.ArticleId}");
+
+        // respond to the request
+        await context.RespondAsync(new CommentsForArticleResponse
         {
-            _logger.LogInformation("listening...");
-
-            var comments = await _commentsService.GetByArticleIdAsync(context.Message.ArticleId);
-
-            _logger.LogInformation($"got {comments.Count()} comments for article {context.Message.ArticleId}");
-
-            // respond to the request
-            await context.RespondAsync(new CommentsForArticleResponse
-            {
-                ArticleId = context.Message.ArticleId,
-                Comments = comments.ToList()
-            }, ctx =>
-            {
-                // spare code! pointless but keep for now in case you move away from request/response
-                ctx.SetRoutingKey("comments.response");
-            });
-        }
-        catch (Exception e)
+            ArticleId = context.Message.ArticleId,
+            Comments = comments.ToList()
+        }, ctx =>
         {
-            throw;
-        }
+            // spare code! pointless but keep for now in case you move away from request/response
+            ctx.SetRoutingKey("comments.response");
+        });
     }
 }
