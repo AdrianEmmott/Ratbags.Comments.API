@@ -1,10 +1,7 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Ratbags.Comments.API.Models;
 using Ratbags.Comments.API.ServiceExtensions;
 using Ratbags.Core.Settings;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +38,9 @@ builder.Services.AddCors(options =>
 });
 
 // add services
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -48,32 +48,10 @@ builder.Services.AddSwaggerGen(c =>
     c.EnableAnnotations();
 });
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+// add service extensions
 builder.Services.AddDIServiceExtension();
-
 builder.Services.AddMassTransitWithRabbitMqServiceExtension(appSettings);
-
-// TODO breakout
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JWT:Issuer"],
-        ValidAudience = builder.Configuration["JWT:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
-    };
-});
+builder.Services.AddAuthenticationServiceExtension(appSettings);
 
 var app = builder.Build();
 

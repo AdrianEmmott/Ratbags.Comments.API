@@ -9,7 +9,6 @@ public static class DIAuthenticationExtension
 {
     public static IServiceCollection AddAuthenticationServiceExtension(this IServiceCollection services, AppSettingsBase settings)
     {
-        // Register services
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
