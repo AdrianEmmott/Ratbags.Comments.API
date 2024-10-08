@@ -130,7 +130,7 @@ public class ServiceTests
             Id = id,
             CommentContent = "test"
         };
-        
+
         _mockRepository.Setup(r => r.GetByIdAsync(id))
                        .ReturnsAsync(article);
 

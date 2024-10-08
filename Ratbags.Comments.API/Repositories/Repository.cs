@@ -9,7 +9,7 @@ public class Repository : IRepository
     private readonly ApplicationDbContext _context;
     private readonly ILogger<Repository> _logger;
 
-    public Repository(ApplicationDbContext context, 
+    public Repository(ApplicationDbContext context,
         ILogger<Repository> logger)
     {
         _context = context;
