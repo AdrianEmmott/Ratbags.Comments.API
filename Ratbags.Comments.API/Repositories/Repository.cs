@@ -37,12 +37,9 @@ public class Repository : IRepository
         return await _context.Comments.FindAsync(id);
     }
 
-    public async Task<IEnumerable<Comment?>> GetByArticleIdAsync(Guid id)
+    public IQueryable<Comment> GetQueryable()
     {
-        return await _context.Comments
-                                .Where(x => x.ArticleId == id)
-                                .OrderByDescending(x => x.PublishDate)
-                                .ToListAsync();
+        return _context.Comments;
     }
 
     public async Task UpdateAsync(Comment comment)

@@ -33,7 +33,7 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     });
 });
 
-// config cors
+// add services
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
@@ -45,7 +45,6 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-// add services
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -65,7 +64,7 @@ var app = builder.Build();
 
 app.UseCors("AllowSpecificOrigin");
 
-// config http request pipeline
+// dev
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -77,7 +76,7 @@ if (app.Environment.IsDevelopment())
 if (!app.Environment.IsDevelopment())
 {
     // production errors
-    app.UseExceptionHandler("/error");  // needs endpoint
+    app.UseExceptionHandler("/error");  // TODO needs endpoint
 }
 else
 {

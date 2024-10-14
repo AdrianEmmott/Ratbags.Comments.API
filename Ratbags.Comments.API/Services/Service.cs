@@ -90,7 +90,10 @@ public class Service : IService
     public async Task<IEnumerable<CommentDTO>> GetByArticleIdAsync(Guid id)
     {
         _logger.LogInformation($"get comments for article {id}");
-        var comments = await _repository.GetByArticleIdAsync(id);
+
+        var comments = _repository.GetQueryable()
+            .OrderBy(c => c.PublishDate)
+            .Where(c => c.ArticleId == id);
 
         if (comments != null && comments.Count() > 0)
         {
@@ -106,6 +109,24 @@ public class Service : IService
         }
 
         return new List<CommentDTO>();
+
+        //_logger.LogInformation($"get comments for article {id}");
+        //var comments = await _repository.GetByArticleIdAsync(id);
+
+        //if (comments != null && comments.Count() > 0)
+        //{
+        //    return comments.Select(comment => new CommentDTO
+        //    {
+        //        Id = comment.Id,
+        //        ArticleId = comment.ArticleId,
+        //        Published = comment.PublishDate,
+        //        Content = comment.CommentContent
+        //    })
+        //    .OrderBy(x => x.Published)
+        //    .ToList();
+        //}
+
+        //return new List<CommentDTO>();
     }
 
     public async Task<bool> UpdateAsync(UpdateCommentModel model)

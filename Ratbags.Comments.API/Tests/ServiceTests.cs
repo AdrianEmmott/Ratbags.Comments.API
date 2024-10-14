@@ -186,8 +186,8 @@ public class ServiceTests
             }
         };
 
-        _mockRepository.Setup(r => r.GetByArticleIdAsync(It.IsAny<Guid>()))
-                       .ReturnsAsync(modelList);
+        _mockRepository.Setup(r => r.GetQueryable())
+                       .Returns(modelList.AsQueryable());
 
         // act
         var result = await _service.GetByArticleIdAsync(articleId);
@@ -209,8 +209,8 @@ public class ServiceTests
 
         var modelList = new List<Comment>();
 
-        _mockRepository.Setup(r => r.GetByArticleIdAsync(It.IsAny<Guid>()))
-                       .ReturnsAsync(modelList);
+        _mockRepository.Setup(r => r.GetQueryable())
+                       .Returns(modelList.AsQueryable());
 
         // act
         var result = await _service.GetByArticleIdAsync(articleId);
