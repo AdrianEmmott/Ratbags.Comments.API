@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using Ratbags.Comments.API.Controllers;
-using Ratbags.Core.DTOs.Articles.Comments;
+using Ratbags.Core.DTOs.Articles;
+using Ratbags.Core.Models.Articles;
 using System.Net;
 
 namespace Ratbags.Comments.API.Tests;
@@ -177,7 +178,7 @@ public class CommentsControllerTests
     public async Task Post_Created()
     {
         // arrange
-        var dto = new CreateCommentDTO 
+        var model = new CreateCommentModel 
         { 
             ArticleId = Guid.NewGuid(), 
             Content = "New Comment" 
@@ -185,11 +186,11 @@ public class CommentsControllerTests
 
         var newId = Guid.NewGuid();
 
-        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateCommentDTO>()))
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateCommentModel>()))
             .ReturnsAsync(newId);
 
         // act
-        var result = await _controller.Post(dto);
+        var result = await _controller.Post(model);
 
         // assert
         Assert.That(result, Is.TypeOf<CreatedAtActionResult>());
@@ -211,17 +212,17 @@ public class CommentsControllerTests
     public async Task Post_BadRequest()
     {
         // arrange
-        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateCommentDTO>()))
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateCommentModel>()))
                    .ReturnsAsync(Guid.Empty);
 
-        var dto = new CreateCommentDTO
+        var model = new CreateCommentModel
         {
             Content = "yak",
             Published = DateTime.Now,
         };
 
         // act 
-        var result = await _controller.Post(dto);
+        var result = await _controller.Post(model);
 
         // assert
         var badRequestResult = result as BadRequestObjectResult;
@@ -236,17 +237,17 @@ public class CommentsControllerTests
     public async Task Post_Exception()
     {
         // arrange
-        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateCommentDTO>()))
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateCommentModel>()))
             .ThrowsAsync(new Exception("test exception"));
 
-        var dto = new CreateCommentDTO
+        var model = new CreateCommentModel
         {
             Content = "<p>lorem ipsum</p>",
             Published = DateTime.Now,
         };
 
         // act
-        var result = await _controller.Post(dto);
+        var result = await _controller.Post(model);
 
         // assert
         var statusCodeResult = result as ObjectResult;
@@ -265,17 +266,17 @@ public class CommentsControllerTests
     public async Task Put_NoContent()
     {
         // arrange
-        var dto = new CommentDTO 
+        var model = new UpdateCommentModel
         { 
             Id = Guid.NewGuid(), 
             Content = "Updated Comment" 
         };
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<CommentDTO>()))
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateCommentModel>()))
             .ReturnsAsync(true);
 
         // act
-        var result = await _controller.Put(dto);
+        var result = await _controller.Put(model);
 
         // assert
         Assert.That(result, Is.TypeOf<NoContentResult>());
@@ -285,17 +286,17 @@ public class CommentsControllerTests
     public async Task Put_NotFound()
     {
         // arrange
-        var dto = new CommentDTO 
+        var model = new UpdateCommentModel 
         { 
             Id = Guid.NewGuid(), 
             Content = "Updated Comment" 
         };
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<CommentDTO>()))
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateCommentModel>()))
             .ReturnsAsync(false);
 
         // act
-        var result = await _controller.Put(dto);
+        var result = await _controller.Put(model);
 
         // assert
         Assert.That(result, Is.TypeOf<NotFoundResult>());
@@ -305,17 +306,17 @@ public class CommentsControllerTests
     public async Task Put_Exception()
     {
         // arrange
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<CommentDTO>()))
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateCommentModel>()))
             .ThrowsAsync(new Exception("test exception"));
 
-        var dto = new CommentDTO
+        var model = new UpdateCommentModel
         {
             Content = "<p>lorem ipsum</p>",
             Published = DateTime.Now,
         };
 
         // act
-        var result = await _controller.Put(dto);
+        var result = await _controller.Put(model);
 
         // assert
         var statusCodeResult = result as ObjectResult;

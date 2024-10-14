@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Ratbags.Comments.API.Models;
+using Ratbags.Comments.API.Models.DB;
 using Ratbags.Comments.API.ServiceExtensions;
 using Ratbags.Core.Settings;
 

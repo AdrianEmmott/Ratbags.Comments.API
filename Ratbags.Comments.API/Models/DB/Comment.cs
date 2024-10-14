@@ -1,6 +1,7 @@
-﻿namespace Ratbags.Comments.API.Models;
+﻿namespace Ratbags.Comments.API.Models.DB;
 
-public partial class Comment{
+public partial class Comment
+{
     public Guid Id { get; set; }
     public Guid ArticleId { get; set; }
 

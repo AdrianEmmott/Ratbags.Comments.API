@@ -2,9 +2,10 @@
 using Moq;
 using NUnit.Framework;
 using Ratbags.Comments.API.Interfaces;
-using Ratbags.Comments.API.Models;
+using Ratbags.Comments.API.Models.DB;
 using Ratbags.Comments.API.Services;
-using Ratbags.Core.DTOs.Articles.Comments;
+using Ratbags.Core.DTOs.Articles;
+using Ratbags.Core.Models.Articles;
 
 namespace Ratbags.Comments.API.Tests;
 
@@ -31,7 +32,7 @@ public class ServiceTests
     {
         // arrange
         var articleId = Guid.NewGuid();
-        var dto = new CreateCommentDTO
+        var model = new CreateCommentModel
         {
             ArticleId = articleId,
             Content = "<p>lorem ipsum</p>",
@@ -44,7 +45,7 @@ public class ServiceTests
                        .ReturnsAsync(id);
 
         // act
-        var result = await _service.CreateAsync(dto);
+        var result = await _service.CreateAsync(model);
 
         // assert
         Assert.That(result, Is.EqualTo(id));
@@ -237,7 +238,7 @@ public class ServiceTests
             PublishDate = DateTime.Now.AddDays(-2),
         };
 
-        var dto = new CommentDTO
+        var model = new UpdateCommentModel
         {
             Id = id,
             ArticleId = articleId,
@@ -252,7 +253,7 @@ public class ServiceTests
                .Returns(Task.CompletedTask);
 
         // act
-        var result = await _service.UpdateAsync(dto);
+        var result = await _service.UpdateAsync(model);
 
         // assert
         Assert.That(result, Is.True);
@@ -265,7 +266,7 @@ public class ServiceTests
         var id = Guid.NewGuid();
         var articleId = Guid.NewGuid();
 
-        var dto = new CommentDTO
+        var model = new UpdateCommentModel
         {
             Id = id,
             ArticleId = articleId,
@@ -280,7 +281,7 @@ public class ServiceTests
                .Returns(Task.CompletedTask);
 
         // act
-        var result = await _service.UpdateAsync(dto);
+        var result = await _service.UpdateAsync(model);
 
         // assert
         Assert.That(result, Is.False);
@@ -302,7 +303,7 @@ public class ServiceTests
             PublishDate = DateTime.Now.AddDays(-2),
         };
 
-        var dto = new CommentDTO
+        var model = new UpdateCommentModel
         {
             Id = id,
             Content = "<p>lorem ipsum</p>",
@@ -316,7 +317,7 @@ public class ServiceTests
                        .ThrowsAsync(new DbUpdateException("Error updating comment"));
 
         // play interrupted - act / assert
-        var ex = Assert.ThrowsAsync<DbUpdateException>(() => _service.UpdateAsync(dto));
+        var ex = Assert.ThrowsAsync<DbUpdateException>(() => _service.UpdateAsync(model));
         Assert.That(ex.Message, Is.EqualTo("Error updating comment"));
     }
 }

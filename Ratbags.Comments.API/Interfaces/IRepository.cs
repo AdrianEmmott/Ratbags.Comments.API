@@ -1,4 +1,4 @@
-﻿using Ratbags.Comments.API.Models;
+﻿using Ratbags.Comments.API.Models.DB;
 
 namespace Ratbags.Comments.API.Interfaces;
 

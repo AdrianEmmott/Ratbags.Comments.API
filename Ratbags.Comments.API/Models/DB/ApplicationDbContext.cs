@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Ratbags.Comments.API.Models;
+namespace Ratbags.Comments.API.Models.DB;
 
 public partial class ApplicationDbContext : DbContext
 {

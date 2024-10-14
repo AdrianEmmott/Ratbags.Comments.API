@@ -1,8 +1,9 @@
 ﻿using Comments.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Ratbags.Comments.API.Interfaces;
-using Ratbags.Comments.API.Models;
-using Ratbags.Core.DTOs.Articles.Comments;
+using Ratbags.Comments.API.Models.DB;
+using Ratbags.Core.DTOs.Articles;
+using Ratbags.Core.Models.Articles;
 
 namespace Ratbags.Comments.API.Services;
 
@@ -18,20 +19,20 @@ public class Service : IService
         _logger = logger;
     }
 
-    public async Task<Guid> CreateAsync(CreateCommentDTO commentDTO)
+    public async Task<Guid> CreateAsync(CreateCommentModel model)
     {
-        if (commentDTO.ArticleId == Guid.Empty)
+        if (model.ArticleId == Guid.Empty)
         {
-            throw new ArgumentNullException(nameof(commentDTO.ArticleId));
+            throw new ArgumentNullException(nameof(model.ArticleId));
         }
 
         var comment = new Comment
         {
             Id = Guid.NewGuid(),
-            ArticleId = commentDTO.ArticleId,
-            CommentContent = commentDTO.Content,
-            PublishDate = commentDTO.Published == DateTime.MinValue ? commentDTO.Published : DateTime.UtcNow,
-            UserId = commentDTO.UserId
+            ArticleId = model.ArticleId,
+            CommentContent = model.Content,
+            PublishDate = model.Published == DateTime.MinValue ? model.Published : DateTime.UtcNow,
+            UserId = model.UserId
         };
 
         try
@@ -42,7 +43,7 @@ public class Service : IService
         }
         catch (DbUpdateException e)
         {
-            _logger.LogError($"Error inserting comment for article {commentDTO.ArticleId}: {e.Message}");
+            _logger.LogError($"Error inserting comment for article {model.ArticleId}: {e.Message}");
             throw;
         }
     }
@@ -107,9 +108,9 @@ public class Service : IService
         return new List<CommentDTO>();
     }
 
-    public async Task<bool> UpdateAsync(CommentDTO commentDTO)
+    public async Task<bool> UpdateAsync(UpdateCommentModel model)
     {
-        var existingComment = await _repository.GetByIdAsync(commentDTO.Id);
+        var existingComment = await _repository.GetByIdAsync(model.Id);
 
         if (existingComment == null)
         {
@@ -118,7 +119,7 @@ public class Service : IService
 
         try
         {
-            existingComment.CommentContent = commentDTO.Content;
+            existingComment.CommentContent = model.Content;
 
             await _repository.UpdateAsync(existingComment);
 
@@ -126,7 +127,7 @@ public class Service : IService
         }
         catch (DbUpdateException e)
         {
-            _logger.LogError($"Error updating comment {commentDTO.Id}: {e.Message}");
+            _logger.LogError($"Error updating comment {model.Id}: {e.Message}");
             throw;
         }
     }

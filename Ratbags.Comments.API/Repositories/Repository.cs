@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Ratbags.Comments.API.Interfaces;
-using Ratbags.Comments.API.Models;
+using Ratbags.Comments.API.Models.DB;
 
 namespace Ratbags.Comments.API.Repositories;
 

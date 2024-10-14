@@ -1,7 +1,8 @@
 ﻿using Comments.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Ratbags.Core.DTOs.Articles.Comments;
+using Ratbags.Core.DTOs.Articles;
+using Ratbags.Core.Models.Articles;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
@@ -24,6 +25,7 @@ namespace Ratbags.Comments.API.Controllers
 
         [HttpDelete("{id}")]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [SwaggerOperation(Summary = "Deletes a comment by id", Description = "Deletes a comment by id")]
         public async Task<IActionResult> Delete(Guid id)
@@ -66,13 +68,14 @@ namespace Ratbags.Comments.API.Controllers
         [HttpPost]
         [Authorize]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [SwaggerOperation(Summary = "Adds a comment to an article", Description = "The article id must exist")]
-        public async Task<IActionResult> Post(CreateCommentDTO commentDTO)
+        public async Task<IActionResult> Post(CreateCommentModel model)
         {
             try
             {
-                var commentId = await _service.CreateAsync(commentDTO);
+                var commentId = await _service.CreateAsync(model);
 
                 if (commentId != Guid.Empty)
                 {
@@ -83,7 +86,7 @@ namespace Ratbags.Comments.API.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError($"Error creating comment for article {commentDTO.ArticleId}: {e.Message}");
+                _logger.LogError($"Error creating comment for article {model.ArticleId}: {e.Message}");
                 return StatusCode((int)HttpStatusCode.InternalServerError, $"An error occurred while creating the comment");
             }
         }
@@ -92,13 +95,14 @@ namespace Ratbags.Comments.API.Controllers
         [Authorize]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [SwaggerOperation(Summary = "Updates a comment ", Description = "Updates a comment")]
-        public async Task<IActionResult> Put([FromBody] CommentDTO commentDTO)
+        public async Task<IActionResult> Put([FromBody] UpdateCommentModel model)
         {
             try
             {
-                var result = await _service.UpdateAsync(commentDTO);
+                var result = await _service.UpdateAsync(model);
 
                 if (!result)
                 {
@@ -109,7 +113,7 @@ namespace Ratbags.Comments.API.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError($"Error updating comment {commentDTO.Id} for article {commentDTO.ArticleId}: {e.Message}");
+                _logger.LogError($"Error updating comment {model.Id} for article {model.ArticleId}: {e.Message}");
                 return StatusCode((int)HttpStatusCode.InternalServerError, "An error occurred while updating the comment");
             }
         }
