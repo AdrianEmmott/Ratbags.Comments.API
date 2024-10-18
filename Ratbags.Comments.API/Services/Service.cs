@@ -86,7 +86,7 @@ public class Service : IService
 
         return null;
     }
-
+      
     public async Task<IEnumerable<CommentDTO>> GetByArticleIdAsync(Guid id)
     {
         _logger.LogInformation($"get comments for article {id}");
@@ -109,24 +109,15 @@ public class Service : IService
         }
 
         return new List<CommentDTO>();
+    }
 
-        //_logger.LogInformation($"get comments for article {id}");
-        //var comments = await _repository.GetByArticleIdAsync(id);
+    public async Task<int> GetCommentsCountForArticleAsync(Guid id)
+    {
+        _logger.LogInformation($"get comments count for article {id}");
 
-        //if (comments != null && comments.Count() > 0)
-        //{
-        //    return comments.Select(comment => new CommentDTO
-        //    {
-        //        Id = comment.Id,
-        //        ArticleId = comment.ArticleId,
-        //        Published = comment.PublishDate,
-        //        Content = comment.CommentContent
-        //    })
-        //    .OrderBy(x => x.Published)
-        //    .ToList();
-        //}
+        var commentsCount = await _repository.GetCommentsCountByArticle(id);
 
-        //return new List<CommentDTO>();
+        return commentsCount;
     }
 
     public async Task<bool> UpdateAsync(UpdateCommentModel model)

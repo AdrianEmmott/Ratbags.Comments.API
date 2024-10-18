@@ -42,6 +42,16 @@ public class Repository : IRepository
         return _context.Comments;
     }
 
+    public async Task<int> GetCommentsCountByArticle(Guid id)
+    {
+        var commentsCount = await _context
+            .Comments
+            .Where(x => x.ArticleId == id)
+            .CountAsync();
+
+        return commentsCount;
+    }
+
     public async Task UpdateAsync(Comment comment)
     {
         _context.Comments.Update(comment);

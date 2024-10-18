@@ -9,5 +9,6 @@ public interface IService
     Task<bool> DeleteAsync(Guid id);
     Task<CommentDTO?> GetByIdAsync(Guid id);
     Task<IEnumerable<CommentDTO>> GetByArticleIdAsync(Guid id);
+    Task<int> GetCommentsCountForArticleAsync(Guid id);
     Task<bool> UpdateAsync(UpdateCommentModel model);
 }

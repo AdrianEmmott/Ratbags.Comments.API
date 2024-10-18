@@ -12,6 +12,7 @@ public static class MassTransitServiceExtension
         services.AddMassTransit(x =>
         {
             x.AddConsumer<CommentsConsumer>();
+            x.AddConsumer<CommentsCountConsumer>();
 
             // rabbitmq config
             x.UsingRabbitMq((context, cfg) =>
@@ -27,15 +28,19 @@ public static class MassTransitServiceExtension
                     c.SetEntityName("articles.comments"); // exchange name for message type
                 });
 
+                cfg.Message<CommentsCountForArticleResponse>(c =>
+                {
+                    c.SetEntityName("articles.comments-count"); // exchange name for message type
+                });
+
                 cfg.ReceiveEndpoint("articles.comments", q =>
                 {
                     q.ConfigureConsumer<CommentsConsumer>(context);
+                });
 
-                    // bind queue to the specific exchange
-                    q.Bind("articles.comments", e =>
-                    {
-                        e.RoutingKey = "request"; // match articles api - pretty sure this isn't needed
-                    });
+                cfg.ReceiveEndpoint("articles.comments-count", q =>
+                {
+                    q.ConfigureConsumer<CommentsCountConsumer>(context);
                 });
             });
         });

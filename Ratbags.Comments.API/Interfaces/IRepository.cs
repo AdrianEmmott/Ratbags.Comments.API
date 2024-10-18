@@ -7,6 +7,9 @@ public interface IRepository
     Task<Guid> CreateAsync(Comment comment);
     Task DeleteAsync(Guid id);
     Task<Comment?> GetByIdAsync(Guid id);
-    IQueryable<Comment> GetQueryable();
+
+    Task<int> GetCommentsCountByArticle(Guid id);
+
+    IQueryable<Comment> GetQueryable(); // TODO hmm
     Task UpdateAsync(Comment comment);
 }
