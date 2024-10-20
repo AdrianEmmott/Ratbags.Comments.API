@@ -9,8 +9,9 @@ public static class DIServiceExtension
 {
     public static IServiceCollection AddDIServiceExtension(this IServiceCollection services)
     {
-        services.AddScoped<IRepository, Repository>();
-        services.AddScoped<IService, Service>();
+        services.AddScoped<ICommentsRepository, CommentsRepository>();
+        services.AddScoped<ICommentsService, CommentsService>();
+        services.AddScoped<IMassTransitService, MassTransitService>();
 
         return services;
     }

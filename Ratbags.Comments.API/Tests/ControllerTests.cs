@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using Ratbags.Comments.API.Controllers;
+using Ratbags.Comments.API.Interfaces;
 using Ratbags.Core.DTOs.Articles;
 using Ratbags.Core.Models.Articles;
 using System.Net;
@@ -12,7 +13,7 @@ namespace Ratbags.Comments.API.Tests;
 [TestFixture]
 public class CommentsControllerTests
 {
-    private Mock<IService> _mockService;
+    private Mock<ICommentsService> _mockService;
     private Mock<ILogger<Controllers.CommentsController>> _mockLogger;
 
     private Controllers.CommentsController _controller;
@@ -20,7 +21,7 @@ public class CommentsControllerTests
     [SetUp]
     public void SetUp()
     {
-        _mockService = new Mock<IService>();
+        _mockService = new Mock<ICommentsService>();
         _mockLogger = new Mock<ILogger<Controllers.CommentsController>>();
         _controller = new Controllers.CommentsController(_mockService.Object, _mockLogger.Object);
     }
@@ -131,12 +132,10 @@ public class CommentsControllerTests
         {
             new CommentDTO {
                 Id = Guid.NewGuid(),
-                ArticleId = articleId,
                 Content = "Test Comment"
             },
             new CommentDTO {
                 Id = Guid.NewGuid(),
-                ArticleId = articleId,
                 Content = "Test Comment 2"
             }
         };

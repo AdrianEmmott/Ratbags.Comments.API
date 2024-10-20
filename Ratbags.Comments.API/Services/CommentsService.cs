@@ -7,15 +7,19 @@ using Ratbags.Core.Models.Articles;
 
 namespace Ratbags.Comments.API.Services;
 
-public class Service : IService
+public class CommentsService : ICommentsService
 {
-    private readonly IRepository _repository;
-    private readonly ILogger<Service> _logger;
+    private readonly ICommentsRepository _repository;
+    private readonly IMassTransitService _massTransitService;
+    private readonly ILogger<CommentsService> _logger;
 
-    public Service(IRepository repository,
-        ILogger<Service> logger)
+    public CommentsService(
+        ICommentsRepository repository,
+        IMassTransitService massTransitService,
+        ILogger<CommentsService> logger)
     {
         _repository = repository;
+        _massTransitService = massTransitService;
         _logger = logger;
     }
 
@@ -78,7 +82,7 @@ public class Service : IService
             return new CommentDTO
             {
                 Id = comment.Id,
-                ArticleId = comment.ArticleId,
+                //ArticleId = comment.ArticleId,
                 Published = comment.PublishDate,
                 Content = comment.CommentContent
             };
@@ -97,15 +101,22 @@ public class Service : IService
 
         if (comments != null && comments.Count() > 0)
         {
-            return comments.Select(comment => new CommentDTO
+            var commentDTOs = comments.Select(comment => new CommentDTO
             {
                 Id = comment.Id,
-                ArticleId = comment.ArticleId,
                 Published = comment.PublishDate,
                 Content = comment.CommentContent
             })
             .OrderBy(x => x.Published)
             .ToList();
+
+            foreach (var item in commentDTOs)
+            {
+                var commenterName = await _massTransitService.GetUserNameDetailsAsync(Guid.Parse("a13b474f-82c6-4e6a-8c90-7e5b65b51048"));
+                item.CommenterName = commenterName;
+            }
+
+            return commentDTOs;
         }
 
         return new List<CommentDTO>();

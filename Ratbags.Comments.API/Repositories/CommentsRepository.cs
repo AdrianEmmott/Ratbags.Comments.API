@@ -4,13 +4,13 @@ using Ratbags.Comments.API.Models.DB;
 
 namespace Ratbags.Comments.API.Repositories;
 
-public class Repository : IRepository
+public class CommentsRepository : ICommentsRepository
 {
     private readonly ApplicationDbContext _context;
-    private readonly ILogger<Repository> _logger;
+    private readonly ILogger<CommentsRepository> _logger;
 
-    public Repository(ApplicationDbContext context,
-        ILogger<Repository> logger)
+    public CommentsRepository(ApplicationDbContext context,
+        ILogger<CommentsRepository> logger)
     {
         _context = context;
         _logger = logger;
@@ -41,6 +41,8 @@ public class Repository : IRepository
     {
         return _context.Comments;
     }
+
+
 
     public async Task<int> GetCommentsCountByArticle(Guid id)
     {

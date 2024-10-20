@@ -12,11 +12,12 @@ namespace Ratbags.Comments.API.Controllers
     [Route("api/comments")]
     public class CommentsController : ControllerBase
     {
-        private readonly IService _service;
+        private readonly ICommentsService _service;
         private readonly ILogger<CommentsController> _logger;
 
-        public CommentsController(IService service
-            , ILogger<CommentsController> logger)
+        public CommentsController(
+            ICommentsService service,
+            ILogger<CommentsController> logger)
         {
             _service = service;
             _logger = logger;

@@ -11,18 +11,22 @@ namespace Ratbags.Comments.API.Tests;
 
 public class ServiceTests
 {
-    private Mock<IRepository> _mockRepository;
-    private Mock<ILogger<Service>> _mockLogger;
+    private Mock<ICommentsRepository> _mockRepository;
+    private Mock<ILogger<CommentsService>> _mockLogger;
+    private Mock<IMassTransitService> _mockMassTransitService;
 
-    private Service _service;
+    private CommentsService _service;
 
     [SetUp]
     public void SetUp()
     {
-        _mockRepository = new Mock<IRepository>();
-        _mockLogger = new Mock<ILogger<Service>>();
+        _mockRepository = new Mock<ICommentsRepository>();
+        _mockLogger = new Mock<ILogger<CommentsService>>();
+        _mockMassTransitService = new Mock<IMassTransitService>();
 
-        _service = new Service(_mockRepository.Object,
+        _service = new CommentsService(
+                                _mockRepository.Object,
+                                _mockMassTransitService.Object,
                                 _mockLogger.Object);
     }
 

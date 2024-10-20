@@ -7,10 +7,10 @@ namespace Ratbags.Comments.Messaging.Consumers;
 public class CommentsCountConsumer : IConsumer<CommentsCountForArticleRequest>
 {
     private readonly ILogger<CommentsCountConsumer> _logger;
-    private readonly IService _commentsService;
+    private readonly ICommentsService _commentsService;
 
     public CommentsCountConsumer(
-        IService commentsService,
+        ICommentsService commentsService,
         ILogger<CommentsCountConsumer> logger)
     {
         _commentsService = commentsService;

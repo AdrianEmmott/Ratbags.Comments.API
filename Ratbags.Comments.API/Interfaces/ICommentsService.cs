@@ -3,7 +3,7 @@ using Ratbags.Core.Models.Articles;
 
 namespace Comments.API.Interfaces;
 
-public interface IService
+public interface ICommentsService
 {
     Task<Guid> CreateAsync(CreateCommentModel model);
     Task<bool> DeleteAsync(Guid id);

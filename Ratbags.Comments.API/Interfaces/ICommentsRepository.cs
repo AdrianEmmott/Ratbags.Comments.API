@@ -2,7 +2,7 @@
 
 namespace Ratbags.Comments.API.Interfaces;
 
-public interface IRepository
+public interface ICommentsRepository
 {
     Task<Guid> CreateAsync(Comment comment);
     Task DeleteAsync(Guid id);
