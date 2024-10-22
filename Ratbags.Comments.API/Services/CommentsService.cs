@@ -82,7 +82,6 @@ public class CommentsService : ICommentsService
             return new CommentDTO
             {
                 Id = comment.Id,
-                //ArticleId = comment.ArticleId,
                 Published = comment.PublishDate,
                 Content = comment.CommentContent
             };
@@ -112,7 +111,9 @@ public class CommentsService : ICommentsService
 
             foreach (var item in commentDTOs)
             {
-                var commenterName = await _massTransitService.GetUserNameDetailsAsync(Guid.Parse("a13b474f-82c6-4e6a-8c90-7e5b65b51048"));
+                // TODO NO NO NO NO NO
+                var commenterUserId = comments.Where(x => x.Id == item.Id).Select(x => x.UserId).FirstOrDefault();
+                var commenterName = await _massTransitService.GetUserNameDetailsAsync(commenterUserId);
                 item.CommenterName = commenterName;
             }
 
