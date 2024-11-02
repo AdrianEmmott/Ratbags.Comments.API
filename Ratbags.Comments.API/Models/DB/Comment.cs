@@ -7,7 +7,7 @@ public partial class Comment
 
     public Guid UserId { get; set; }
 
-    public string CommentContent { get; set; } = null!;
+    public string CommentContent { get; set; } = default!;
 
     public DateTime PublishDate { get; set; }
 }

@@ -1,11 +1,10 @@
 ﻿using Comments.API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using Ratbags.Comments.API.Controllers;
-using Ratbags.Comments.API.Interfaces;
+using Ratbags.Comments.API.Models.API;
 using Ratbags.Core.DTOs.Articles;
-using Ratbags.Core.Models.Articles;
 using System.Net;
 
 namespace Ratbags.Comments.API.Tests;
@@ -14,7 +13,7 @@ namespace Ratbags.Comments.API.Tests;
 public class CommentsControllerTests
 {
     private Mock<ICommentsService> _mockService;
-    private Mock<ILogger<Controllers.CommentsController>> _mockLogger;
+    private Mock<ILogger<CommentsController>> _mockLogger;
 
     private Controllers.CommentsController _controller;
 
@@ -22,7 +21,7 @@ public class CommentsControllerTests
     public void SetUp()
     {
         _mockService = new Mock<ICommentsService>();
-        _mockLogger = new Mock<ILogger<Controllers.CommentsController>>();
+        _mockLogger = new Mock<ILogger<CommentsController>>();
         _controller = new Controllers.CommentsController(_mockService.Object, _mockLogger.Object);
     }
 
@@ -101,7 +100,7 @@ public class CommentsControllerTests
         // assert
         Assert.That(result, Is.TypeOf<OkObjectResult>());
         var okResult = result as OkObjectResult;
-        Assert.That(okResult.Value, Is.EqualTo(dto));
+        Assert.That(okResult?.Value, Is.EqualTo(dto));
     }
 
     [Test]
@@ -151,7 +150,7 @@ public class CommentsControllerTests
 
         // assert ok has correct comments
         var okResult = result as OkObjectResult;
-        Assert.That(okResult.Value, Has.Count.EqualTo(2));
+        Assert.That(okResult?.Value, Has.Count.EqualTo(2));
         Assert.That(okResult.Value, Is.EqualTo(dtoList));
     }
 
@@ -177,7 +176,7 @@ public class CommentsControllerTests
     public async Task Post_Created()
     {
         // arrange
-        var model = new CreateCommentModel 
+        var model = new CommentCreate 
         { 
             ArticleId = Guid.NewGuid(), 
             Content = "New Comment" 
@@ -185,7 +184,7 @@ public class CommentsControllerTests
 
         var newId = Guid.NewGuid();
 
-        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateCommentModel>()))
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CommentCreate>()))
             .ReturnsAsync(newId);
 
         // act
@@ -196,12 +195,12 @@ public class CommentsControllerTests
         var createdResult = result as CreatedAtActionResult;
 
         // assert action name correct
-        Assert.That(createdResult.ActionName, 
+        Assert.That(createdResult?.ActionName, 
             Is.EqualTo(nameof(CommentsController.GetByArticleId)));
 
         // assert route values correct id
-        Assert.That(createdResult.RouteValues.ContainsKey("id"));
-        Assert.That(createdResult.RouteValues["id"], Is.EqualTo(newId));
+        Assert.That(createdResult?.RouteValues?.ContainsKey("id") ?? false);
+        Assert.That(createdResult?.RouteValues?["id"], Is.EqualTo(newId));
 
         // assert returned value is the new id
         Assert.That(createdResult.Value, Is.EqualTo(newId));
@@ -211,10 +210,10 @@ public class CommentsControllerTests
     public async Task Post_BadRequest()
     {
         // arrange
-        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateCommentModel>()))
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CommentCreate>()))
                    .ReturnsAsync(Guid.Empty);
 
-        var model = new CreateCommentModel
+        var model = new CommentCreate
         {
             Content = "yak",
             Published = DateTime.Now,
@@ -236,10 +235,10 @@ public class CommentsControllerTests
     public async Task Post_Exception()
     {
         // arrange
-        _mockService.Setup(s => s.CreateAsync(It.IsAny<CreateCommentModel>()))
+        _mockService.Setup(s => s.CreateAsync(It.IsAny<CommentCreate>()))
             .ThrowsAsync(new Exception("test exception"));
 
-        var model = new CreateCommentModel
+        var model = new CommentCreate
         {
             Content = "<p>lorem ipsum</p>",
             Published = DateTime.Now,
@@ -265,13 +264,13 @@ public class CommentsControllerTests
     public async Task Put_NoContent()
     {
         // arrange
-        var model = new UpdateCommentModel
+        var model = new CommentUpdate
         { 
             Id = Guid.NewGuid(), 
             Content = "Updated Comment" 
         };
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateCommentModel>()))
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<CommentUpdate>()))
             .ReturnsAsync(true);
 
         // act
@@ -285,13 +284,13 @@ public class CommentsControllerTests
     public async Task Put_NotFound()
     {
         // arrange
-        var model = new UpdateCommentModel 
+        var model = new CommentUpdate
         { 
             Id = Guid.NewGuid(), 
             Content = "Updated Comment" 
         };
 
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateCommentModel>()))
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<CommentUpdate>()))
             .ReturnsAsync(false);
 
         // act
@@ -305,10 +304,10 @@ public class CommentsControllerTests
     public async Task Put_Exception()
     {
         // arrange
-        _mockService.Setup(s => s.UpdateAsync(It.IsAny<UpdateCommentModel>()))
+        _mockService.Setup(s => s.UpdateAsync(It.IsAny<CommentUpdate>()))
             .ThrowsAsync(new Exception("test exception"));
 
-        var model = new UpdateCommentModel
+        var model = new CommentUpdate
         {
             Content = "<p>lorem ipsum</p>",
             Published = DateTime.Now,

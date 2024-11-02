@@ -1,14 +1,14 @@
-﻿using Ratbags.Core.DTOs.Articles;
-using Ratbags.Core.Models.Articles;
+﻿using Ratbags.Comments.API.Models.API;
+using Ratbags.Core.DTOs.Articles;
 
 namespace Comments.API.Interfaces;
 
 public interface ICommentsService
 {
-    Task<Guid> CreateAsync(CreateCommentModel model);
+    Task<Guid> CreateAsync(CommentCreate model);
     Task<bool> DeleteAsync(Guid id);
     Task<CommentDTO?> GetByIdAsync(Guid id);
-    Task<IEnumerable<CommentDTO>> GetByArticleIdAsync(Guid id);
-    Task<int> GetCommentsCountForArticleAsync(Guid id);
-    Task<bool> UpdateAsync(UpdateCommentModel model);
+    Task<IEnumerable<CommentDTO>?> GetByArticleIdAsync(Guid id);
+    Task<int> GetCountForArticleAsync(Guid id);
+    Task<bool> UpdateAsync(CommentUpdate model);
 }

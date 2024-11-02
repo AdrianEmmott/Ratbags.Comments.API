@@ -1,9 +1,10 @@
 ﻿using Comments.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Ratbags.Comments.API.Interfaces;
+using Ratbags.Comments.API.Models.API;
 using Ratbags.Comments.API.Models.DB;
+using Ratbags.Comments.API.Models.DTOs;
 using Ratbags.Core.DTOs.Articles;
-using Ratbags.Core.Models.Articles;
 
 namespace Ratbags.Comments.API.Services;
 
@@ -23,7 +24,7 @@ public class CommentsService : ICommentsService
         _logger = logger;
     }
 
-    public async Task<Guid> CreateAsync(CreateCommentModel model)
+    public async Task<Guid> CreateAsync(CommentCreate model)
     {
         if (model.ArticleId == Guid.Empty)
         {
@@ -90,13 +91,11 @@ public class CommentsService : ICommentsService
         return null;
     }
       
-    public async Task<IEnumerable<CommentDTO>> GetByArticleIdAsync(Guid id)
+    public async Task<IEnumerable<CommentDTO>?> GetByArticleIdAsync(Guid id)
     {
         _logger.LogInformation($"get comments for article {id}");
 
-        var comments = _repository.GetQueryable()
-            .OrderBy(c => c.PublishDate)
-            .Where(c => c.ArticleId == id);
+        var comments = await _repository.GetByArticleId(id);
 
         if (comments != null && comments.Count() > 0)
         {
@@ -120,19 +119,19 @@ public class CommentsService : ICommentsService
             return commentDTOs;
         }
 
-        return new List<CommentDTO>();
+        return null;
     }
 
-    public async Task<int> GetCommentsCountForArticleAsync(Guid id)
+    public async Task<int> GetCountForArticleAsync(Guid id)
     {
         _logger.LogInformation($"get comments count for article {id}");
 
-        var commentsCount = await _repository.GetCommentsCountByArticle(id);
+        var commentsCount = await _repository.GetCountByArticle(id);
 
         return commentsCount;
     }
 
-    public async Task<bool> UpdateAsync(UpdateCommentModel model)
+    public async Task<bool> UpdateAsync(CommentUpdate model)
     {
         var existingComment = await _repository.GetByIdAsync(model.Id);
 
@@ -144,6 +143,7 @@ public class CommentsService : ICommentsService
         try
         {
             existingComment.CommentContent = model.Content;
+            existingComment.PublishDate = DateTime.UtcNow;
 
             await _repository.UpdateAsync(existingComment);
 

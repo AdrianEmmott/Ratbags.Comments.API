@@ -1,8 +1,8 @@
 ﻿using Comments.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Ratbags.Comments.API.Models.API;
 using Ratbags.Core.DTOs.Articles;
-using Ratbags.Core.Models.Articles;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
@@ -72,18 +72,13 @@ namespace Ratbags.Comments.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [SwaggerOperation(Summary = "Adds a comment to an article", Description = "The article id must exist")]
-        public async Task<IActionResult> Post(CreateCommentModel model)
+        public async Task<IActionResult> Post(CommentCreate model)
         {
             try
             {
                 var commentId = await _service.CreateAsync(model);
 
-                if (commentId != Guid.Empty)
-                {
-                    return CreatedAtAction(nameof(GetByArticleId), new { id = commentId }, commentId);
-                }
-
-                return BadRequest("Failed to create comment");
+                return commentId != Guid.Empty ? BadRequest("Failed to create comment") : CreatedAtAction(nameof(GetByArticleId), new { id = commentId }, commentId);
             }
             catch (Exception e)
             {
@@ -99,7 +94,7 @@ namespace Ratbags.Comments.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [SwaggerOperation(Summary = "Updates a comment ", Description = "Updates a comment")]
-        public async Task<IActionResult> Put([FromBody] UpdateCommentModel model)
+        public async Task<IActionResult> Put([FromBody] CommentUpdate model)
         {
             try
             {

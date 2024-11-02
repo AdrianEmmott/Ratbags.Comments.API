@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using Ratbags.Comments.API.Interfaces;
+using Ratbags.Comments.API.Models.API;
 using Ratbags.Comments.API.Models.DB;
 using Ratbags.Comments.API.Services;
-using Ratbags.Core.DTOs.Articles;
-using Ratbags.Core.Models.Articles;
 
 namespace Ratbags.Comments.API.Tests;
 
@@ -36,7 +35,7 @@ public class ServiceTests
     {
         // arrange
         var articleId = Guid.NewGuid();
-        var model = new CreateCommentModel
+        var model = new CommentCreate
         {
             ArticleId = articleId,
             Content = "<p>lorem ipsum</p>",
@@ -242,7 +241,7 @@ public class ServiceTests
             PublishDate = DateTime.Now.AddDays(-2),
         };
 
-        var model = new UpdateCommentModel
+        var model = new CommentUpdate
         {
             Id = id,
             ArticleId = articleId,
@@ -270,7 +269,7 @@ public class ServiceTests
         var id = Guid.NewGuid();
         var articleId = Guid.NewGuid();
 
-        var model = new UpdateCommentModel
+        var model = new CommentUpdate
         {
             Id = id,
             ArticleId = articleId,
@@ -307,7 +306,7 @@ public class ServiceTests
             PublishDate = DateTime.Now.AddDays(-2),
         };
 
-        var model = new UpdateCommentModel
+        var model = new CommentUpdate
         {
             Id = id,
             Content = "<p>lorem ipsum</p>",

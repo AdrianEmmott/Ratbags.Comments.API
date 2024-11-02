@@ -21,7 +21,7 @@ public class CommentsCountConsumer : IConsumer<CommentsCountForArticleRequest>
     {
         _logger.LogInformation("listening...");
 
-        var count = await _commentsService.GetCommentsCountForArticleAsync(context.Message.ArticleId);
+        var count = await _commentsService.GetCountForArticleAsync(context.Message.ArticleId);
 
         _logger.LogInformation($"{count} comments for article {context.Message.ArticleId}");
 

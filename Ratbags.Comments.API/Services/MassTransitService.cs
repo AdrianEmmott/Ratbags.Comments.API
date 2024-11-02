@@ -7,11 +7,14 @@ namespace Ratbags.Comments.API.Services
     public class MassTransitService : IMassTransitService
     {
         private readonly IRequestClient<UserFullNameRequest> _massTrasitClient;
+        private readonly ILogger<MassTransitService> _logger;
 
         public MassTransitService(
-            IRequestClient<UserFullNameRequest> massTrasitClient)
+            IRequestClient<UserFullNameRequest> massTrasitClient,
+            ILogger<MassTransitService> logger)
         {
             _massTrasitClient = massTrasitClient;
+            _logger = logger;
         }
 
         public async Task<string> GetUserNameDetailsAsync(Guid id)
@@ -29,6 +32,7 @@ namespace Ratbags.Comments.API.Services
             }
             catch (Exception e)
             {
+                _logger.LogError($"error getting username details via massTransit: {e.Message}");
                 throw;
             }
         }

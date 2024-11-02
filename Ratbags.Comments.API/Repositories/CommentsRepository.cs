@@ -42,9 +42,16 @@ public class CommentsRepository : ICommentsRepository
         return _context.Comments;
     }
 
+    public async Task<List<Comment>> GetByArticleId(Guid articleId)
+    {
+        var results = _context.Comments
+            .OrderBy(x => x.PublishDate)
+            .Where(x => x.ArticleId == articleId);
 
+        return await results.ToListAsync();
+    }
 
-    public async Task<int> GetCommentsCountByArticle(Guid id)
+    public async Task<int> GetCountByArticle(Guid id)
     {
         var commentsCount = await _context
             .Comments
