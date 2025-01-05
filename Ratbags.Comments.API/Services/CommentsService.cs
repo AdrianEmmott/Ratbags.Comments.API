@@ -1,26 +1,26 @@
 ﻿using Comments.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Ratbags.Comments.API.Interfaces;
+using Ratbags.Comments.API.Models;
 using Ratbags.Comments.API.Models.API;
 using Ratbags.Comments.API.Models.DB;
 using Ratbags.Comments.API.Models.DTOs;
-using Ratbags.Core.DTOs.Articles;
 
 namespace Ratbags.Comments.API.Services;
 
 public class CommentsService : ICommentsService
 {
+    private readonly AppSettings _appSettings;
     private readonly ICommentsRepository _repository;
-    private readonly IMassTransitService _massTransitService;
     private readonly ILogger<CommentsService> _logger;
 
     public CommentsService(
+        AppSettings appSettings,
         ICommentsRepository repository,
-        IMassTransitService massTransitService,
         ILogger<CommentsService> logger)
     {
+        _appSettings = appSettings;
         _repository = repository;
-        _massTransitService = massTransitService;
         _logger = logger;
     }
 
@@ -111,9 +111,9 @@ public class CommentsService : ICommentsService
             foreach (var item in commentDTOs)
             {
                 // TODO NO NO NO NO NO
-                var commenterUserId = comments.Where(x => x.Id == item.Id).Select(x => x.UserId).FirstOrDefault();
-                var commenterName = await _massTransitService.GetUserNameDetailsAsync(commenterUserId);
-                item.CommenterName = commenterName;
+                //var commenterUserId = comments.Where(x => x.Id == item.Id).Select(x => x.UserId).FirstOrDefault();
+                //var commenterName = await _massTransitService.GetUserNameDetailsAsync(commenterUserId);
+                //item.CommenterName = commenterName;
             }
 
             return commentDTOs;

@@ -1,5 +1,5 @@
 ﻿using Ratbags.Comments.API.Models.API;
-using Ratbags.Core.DTOs.Articles;
+using Ratbags.Comments.API.Models.DTOs;
 
 namespace Comments.API.Interfaces;
 

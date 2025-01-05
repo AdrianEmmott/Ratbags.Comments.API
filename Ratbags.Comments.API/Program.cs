@@ -1,7 +1,9 @@
+using Azure.Messaging.ServiceBus;
 using Microsoft.EntityFrameworkCore;
+using Ratbags.Comments.API.Models;
 using Ratbags.Comments.API.Models.DB;
 using Ratbags.Comments.API.ServiceExtensions;
-using Ratbags.Core.Settings;
+using Ratbags.Comments.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +13,8 @@ if (builder.Environment.IsDevelopment())
     builder.Configuration.AddUserSecrets<Program>();
 }
 
-builder.Services.Configure<AppSettingsBase>(builder.Configuration);
-var appSettings = builder.Configuration.Get<AppSettingsBase>() ?? throw new Exception("Appsettings missing");
+builder.Services.Configure<AppSettings>(builder.Configuration);
+var appSettings = builder.Configuration.Get<AppSettings>() ?? throw new Exception("Appsettings missing");
 
 var certificatePath = string.Empty;
 var certificateKeyPath = string.Empty;
@@ -45,6 +47,11 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+builder.Services.AddSingleton(serviceProvider =>
+{
+    return new ServiceBusClient(appSettings.AZSBTestConnection);
+});
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -57,8 +64,16 @@ builder.Services.AddSwaggerGen(c =>
 
 // add service extensions
 builder.Services.AddDIServiceExtension();
-builder.Services.AddMassTransitWithRabbitMqServiceExtension(appSettings);
 builder.Services.AddAuthenticationServiceExtension(appSettings);
+
+// background service for azure service bus 'get comments' listener
+builder.Services.AddHostedService(provider =>
+    new ServiceBusBackgroundService(
+        appSettings.AZSBTestConnection, 
+        "comments-topic", 
+        "comments-service-subscription",
+        provider.GetRequiredService<IServiceScopeFactory>(),
+        provider.GetRequiredService<ILogger<ServiceBusBackgroundService>>()));
 
 var app = builder.Build();
 

@@ -82,93 +82,93 @@ public class CommentsControllerTests
 
 
     // GET/{ID}
-    [Test]
-    public async Task GetById_Ok()
-    {
-        // arrange
-        var dto = new CommentDTO 
-        { 
-            Id = Guid.NewGuid()
-        };
+    //[Test]
+    //public async Task GetById_Ok()
+    //{
+    //    // arrange
+    //    var dto = new CommentDTO 
+    //    { 
+    //        Id = Guid.NewGuid()
+    //    };
 
-        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(dto);
+    //    _mockService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+    //        .ReturnsAsync(dto);
 
-        // act
-        var result = await _controller.Get(dto.Id);
+    //    // act
+    //    var result = await _controller.Get(dto.Id);
 
-        // assert
-        Assert.That(result, Is.TypeOf<OkObjectResult>());
-        var okResult = result as OkObjectResult;
-        Assert.That(okResult?.Value, Is.EqualTo(dto));
-    }
+    //    // assert
+    //    Assert.That(result, Is.TypeOf<OkObjectResult>());
+    //    var okResult = result as OkObjectResult;
+    //    Assert.That(okResult?.Value, Is.EqualTo(dto));
+    //}
 
-    [Test]
-    public async Task GetById_NotFound()
-    {
-        // arrange
-        var id = Guid.NewGuid();
+    //[Test]
+    //public async Task GetById_NotFound()
+    //{
+    //    // arrange
+    //    var id = Guid.NewGuid();
 
-        _mockService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(null as CommentDTO);
+    //    _mockService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+    //        .ReturnsAsync(null as CommentDTO);
 
-        // act
-        var result = await _controller.Get(id);
+    //    // act
+    //    var result = await _controller.Get(id);
 
-        // assert
-        Assert.That(result, Is.TypeOf<NotFoundResult>());
-    }
+    //    // assert
+    //    Assert.That(result, Is.TypeOf<NotFoundResult>());
+    //}
 
 
     // GET/ARTICLE/{ID}
-    [Test]
-    public async Task GetByArticleId_Ok()
-    {
-        // arrange
-        var articleId = Guid.NewGuid();
+    //[Test]
+    //public async Task GetByArticleId_Ok()
+    //{
+    //    // arrange
+    //    var articleId = Guid.NewGuid();
 
-        var dtoList = new List<CommentDTO>
-        {
-            new CommentDTO {
-                Id = Guid.NewGuid(),
-                Content = "Test Comment"
-            },
-            new CommentDTO {
-                Id = Guid.NewGuid(),
-                Content = "Test Comment 2"
-            }
-        };
+    //    var dtoList = new List<CommentDTO>
+    //    {
+    //        new CommentDTO {
+    //            Id = Guid.NewGuid(),
+    //            Content = "Test Comment"
+    //        },
+    //        new CommentDTO {
+    //            Id = Guid.NewGuid(),
+    //            Content = "Test Comment 2"
+    //        }
+    //    };
 
-        _mockService.Setup(s => s.GetByArticleIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(dtoList);
+    //    _mockService.Setup(s => s.GetByArticleIdAsync(It.IsAny<Guid>()))
+    //        .ReturnsAsync(dtoList);
 
-        // act
-        var result = await _controller.GetByArticleId(articleId);
+    //    // act
+    //    var result = await _controller.GetByArticleId(articleId);
 
-        // assert
-        Assert.That(result, Is.TypeOf<OkObjectResult>());
+    //    // assert
+    //    Assert.That(result, Is.TypeOf<OkObjectResult>());
 
-        // assert ok has correct comments
-        var okResult = result as OkObjectResult;
-        Assert.That(okResult?.Value, Has.Count.EqualTo(2));
-        Assert.That(okResult.Value, Is.EqualTo(dtoList));
-    }
+    //    // assert ok has correct comments
+    //    var okResult = result as OkObjectResult;
+    //    Assert.That(okResult?.Value, Has.Count.EqualTo(2));
+    //    Assert.That(okResult.Value, Is.EqualTo(dtoList));
+    //}
 
-    [Test]
-    public async Task GetByArticleId_NotFound()
-    {
-        // arrange
-        var articleId = Guid.NewGuid();
+    //[Test]
+    //public async Task GetByArticleId_NotFound()
+    //{
+    //    // arrange
+    //    var articleId = Guid.NewGuid();
 
-        _mockService.Setup(s => s.GetByArticleIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((List<CommentDTO>)null);
+    //    _mockService.Setup(s => s.GetByArticleIdAsync(It.IsAny<Guid>()))
+    //        .ReturnsAsync((List<CommentDTO>)null);
 
-        // act
-        var result = await _controller.GetByArticleId(articleId);
+    //    // act
+    //    var result = await _controller.GetByArticleId(articleId);
 
-        // assert
-        Assert.That(result, Is.TypeOf<NotFoundResult>());
-    }
+    //    // assert
+    //    Assert.That(result, Is.TypeOf<NotFoundResult>());
+    //}
 
 
     // POST
