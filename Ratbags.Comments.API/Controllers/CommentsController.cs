@@ -46,7 +46,7 @@ namespace Ratbags.Comments.API.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(CommentDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CommentCoreDTO), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Summary = "Gets a comment by id", Description = "Returns a specific comment by id")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -57,7 +57,7 @@ namespace Ratbags.Comments.API.Controllers
 
         [HttpGet("article/{id}")]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(CommentDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CommentCoreDTO), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Summary = "Gets all comments by article id", Description = "Returns all comments for an article or an empty list if no data")]
         public async Task<IActionResult> GetByArticleId(Guid id)
         {
@@ -78,7 +78,9 @@ namespace Ratbags.Comments.API.Controllers
             {
                 var commentId = await _service.CreateAsync(model);
 
-                return commentId != Guid.Empty ? BadRequest("Failed to create comment") : CreatedAtAction(nameof(GetByArticleId), new { id = commentId }, commentId);
+                return commentId != Guid.Empty 
+                    ? CreatedAtAction(nameof(GetByArticleId), new { id = commentId }, commentId)
+                    : BadRequest("Failed to create comment");
             }
             catch (Exception e)
             {

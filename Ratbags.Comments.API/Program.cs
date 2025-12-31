@@ -1,9 +1,9 @@
 using Azure.Messaging.ServiceBus;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Ratbags.Comments.API.Models;
 using Ratbags.Comments.API.Models.DB;
 using Ratbags.Comments.API.ServiceExtensions;
-using Ratbags.Comments.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +49,12 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton(serviceProvider =>
 {
-    return new ServiceBusClient(appSettings.AZSBTestConnection);
+    return new ServiceBusClient(appSettings.Messaging.ASB.Connection);
+});
+
+builder.Services.Configure<JsonOptions>(x =>
+{
+    x.SerializerOptions.PropertyNameCaseInsensitive = true;
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -65,15 +70,6 @@ builder.Services.AddSwaggerGen(c =>
 // add service extensions
 builder.Services.AddDIServiceExtension();
 builder.Services.AddAuthenticationServiceExtension(appSettings);
-
-// background service for azure service bus 'get comments' listener
-builder.Services.AddHostedService(provider =>
-    new ServiceBusBackgroundService(
-        appSettings.AZSBTestConnection, 
-        "comments-topic", 
-        "comments-service-subscription",
-        provider.GetRequiredService<IServiceScopeFactory>(),
-        provider.GetRequiredService<ILogger<ServiceBusBackgroundService>>()));
 
 var app = builder.Build();
 

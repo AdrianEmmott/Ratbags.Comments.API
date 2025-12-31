@@ -5,6 +5,7 @@ using Ratbags.Comments.API.Models;
 using Ratbags.Comments.API.Models.API;
 using Ratbags.Comments.API.Models.DB;
 using Ratbags.Comments.API.Models.DTOs;
+using Ratbags.Core.DTOs.Articles;
 
 namespace Ratbags.Comments.API.Services;
 
@@ -74,47 +75,41 @@ public class CommentsService : ICommentsService
         }
     }
 
-    public async Task<CommentDTO?> GetByIdAsync(Guid id)
+    public async Task<CommentCoreDTO?> GetByIdAsync(Guid id)
     {
         var comment = await _repository.GetByIdAsync(id);
 
         if (comment != null)
         {
-            return new CommentDTO
-            {
-                Id = comment.Id,
-                Published = comment.PublishDate,
-                Content = comment.CommentContent
-            };
+            return new CommentCoreDTO
+            (
+                Id: comment.Id,
+                UserId: comment.UserId,
+                Published: comment.PublishDate,
+                Content: comment.CommentContent
+            );
         }
 
         return null;
     }
       
-    public async Task<IEnumerable<CommentDTO>?> GetByArticleIdAsync(Guid id)
+    public async Task<IEnumerable<CommentCoreDTO>?> GetByArticleIdAsync(Guid id)
     {
-        _logger.LogInformation($"get comments for article {id}");
-
         var comments = await _repository.GetByArticleId(id);
 
         if (comments != null && comments.Count() > 0)
         {
-            var commentDTOs = comments.Select(comment => new CommentDTO
-            {
-                Id = comment.Id,
-                Published = comment.PublishDate,
-                Content = comment.CommentContent
-            })
+            var commentDTOs = comments.Select(comment => new CommentCoreDTO
+            (
+                Id: comment.Id,
+                UserId: comment.UserId,
+                Published: comment.PublishDate,
+                Content: comment.CommentContent
+            ))
             .OrderBy(x => x.Published)
             .ToList();
 
-            foreach (var item in commentDTOs)
-            {
-                // TODO NO NO NO NO NO
-                //var commenterUserId = comments.Where(x => x.Id == item.Id).Select(x => x.UserId).FirstOrDefault();
-                //var commenterName = await _massTransitService.GetUserNameDetailsAsync(commenterUserId);
-                //item.CommenterName = commenterName;
-            }
+            _logger.LogInformation($"Found {comments.Count()} comments for article {id}");
 
             return commentDTOs;
         }
@@ -124,9 +119,18 @@ public class CommentsService : ICommentsService
 
     public async Task<int> GetCountForArticleAsync(Guid id)
     {
-        _logger.LogInformation($"get comments count for article {id}");
-
         var commentsCount = await _repository.GetCountByArticle(id);
+
+        _logger.LogInformation($"Counted {commentsCount } comments for article {id}");
+
+        return commentsCount;
+    }
+
+    public async Task<Dictionary<Guid, int>> GetCountsForArticlesAsync(IReadOnlyList<Guid> ids)
+    {
+        var commentsCount = await _repository.GetCountByArticlesAsync(ids);
+
+        _logger.LogInformation($"Retrieved comment counts for {ids.Count()} articles");
 
         return commentsCount;
     }

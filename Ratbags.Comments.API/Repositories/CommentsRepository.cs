@@ -61,6 +61,28 @@ public class CommentsRepository : ICommentsRepository
         return commentsCount;
     }
 
+    public async Task<Dictionary<Guid, int>> GetCountByArticlesAsync(IReadOnlyList<Guid> ids)
+    {
+        var commentsCounts = await _context
+            .Comments
+            .Where(x => ids.Contains(x.ArticleId))
+            .GroupBy(x => x.ArticleId)
+            .Select(g => new
+            {
+                ArticleId = g.Key,
+                Count = g.Count()
+            })
+            .ToDictionaryAsync(x => x.ArticleId, x => x.Count);
+
+        // return zeroes as above linq won't return any
+        foreach(var id in ids)
+        {
+            commentsCounts.TryAdd(id, 0);
+        }
+        
+        return commentsCounts;
+    }
+
     public async Task UpdateAsync(Comment comment)
     {
         _context.Comments.Update(comment);
