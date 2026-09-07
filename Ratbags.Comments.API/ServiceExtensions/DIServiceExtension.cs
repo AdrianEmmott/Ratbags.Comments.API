@@ -21,10 +21,6 @@ public static class DIServiceExtension
 
         // service bus
         services.AddHostedService<GetCommentCountsForArticlesWorker>();
-        services.AddHostedService<GetCommentsForArticleWorker>();
-
-        services.AddScoped<IServiceBusRequestHandler
-            <GetCommentsForArticleRequest, GetCommentsForArticleResponse>, GetCommentsForArticlesHandler>();
 
         services.AddScoped<IServiceBusRequestHandler
             <GetCommentCountsForArticlesRequest, GetCommentCountsForArticlesResponse>, GetCommentCountsForArticlesHandler>();

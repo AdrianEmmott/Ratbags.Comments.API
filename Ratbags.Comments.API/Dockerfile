@@ -1,5 +1,5 @@
-# build with .net 8.0 sdk image
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# build with .net sdk image
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # github pat
@@ -24,10 +24,10 @@ FROM build AS publish
 RUN dotnet publish "Ratbags.Comments.API.csproj" -c Release -o /app/publish
 
 # run app with .net 8.0 runtime image 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
-EXPOSE 5079
-EXPOSE 7160
+EXPOSE 5020
+EXPOSE 5021
 
 # install certs to sim ssl locally
 RUN apt-get update && apt-get install -y ca-certificates

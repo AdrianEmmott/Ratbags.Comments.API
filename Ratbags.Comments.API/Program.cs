@@ -1,9 +1,9 @@
-using Azure.Messaging.ServiceBus;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Ratbags.Comments.API.Models;
 using Ratbags.Comments.API.Models.DB;
 using Ratbags.Comments.API.ServiceExtensions;
+using Ratbags.Core.Messaging.ASB;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +22,9 @@ var certificateKeyPath = string.Empty;
 // are we in docker?
 var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
 
-certificatePath = Path.Combine(appSettings.Certificate.Path, appSettings.Certificate.Name);
+certificatePath = isDocker
+    ? Path.Combine("/https", appSettings.Certificate.Name)
+    : Path.Combine(appSettings.Certificate.Path, appSettings.Certificate.Name);
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
@@ -47,10 +49,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-builder.Services.AddSingleton(serviceProvider =>
-{
-    return new ServiceBusClient(appSettings.Messaging.ASB.Connection);
-});
+builder.Services.AddRatbagsServiceBus(appSettings);
 
 builder.Services.Configure<JsonOptions>(x =>
 {
